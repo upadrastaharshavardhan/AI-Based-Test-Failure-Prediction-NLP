@@ -1,0 +1,6 @@
+Metric,Value
+Accuracy,0.9340
+Macro_F1,0.921
+Fail_F1,0.887
+Pass_F1,0.955
+ROC_AUC,0.956

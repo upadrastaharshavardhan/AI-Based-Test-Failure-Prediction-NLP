@@ -1,0 +1,43 @@
+project:
+  name: "ai-test-failure-prediction"
+  version: "1.0.0"
+
+paths:
+  data_dir: "data"
+  artifacts_dir: "artifacts"
+  raw_data: "data/tests.csv"
+  embeddings: "artifacts/embeddings.npy"
+  classifier: "artifacts/classifier.joblib"
+  metadata: "artifacts/metadata.csv"
+  faiss_index: "artifacts/faiss.index"
+
+data:
+  n_samples: 5000
+  fail_ratio: 0.28
+  random_seed: 42
+  test_size: 0.2
+
+embedding:
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  batch_size: 64
+  device: "cuda"
+  normalize: true
+
+classifier:
+  type: "logistic"
+  max_iter: 1000
+  class_weight: "balanced"
+  n_estimators: 200
+  random_state: 42
+
+similarity:
+  top_k: 5
+  metric: "cosine"
+
+preprocessing:
+  max_text_length: 800
+
+gradio:
+  title: "AI Test Failure Predictor"
+  description: "Predict whether a test will pass or fail before running it."
+  share: false

@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>AI-Based Test Failure Prediction | Project 5</title>
+
+<meta
+ name="description"
+ content="Research Project 5 — AI-Based Test Failure Prediction using NLP and Machine Learning."
+/>
+
+<meta
+ name="keywords"
+ content="AI, NLP, Machine Learning, Test Failure Prediction, Software Testing, QA, CI/CD, Predictive Testing"
+/>
+
+  <meta name="author" content="Upadrasta Harsha Vardhan" />
+
+  <style>
+    :root {
+      --bg: #060816;
+      --bg-soft: #0b1020;
+      --card: rgba(17, 24, 39, 0.72);
+      --card-hover: rgba(25, 34, 55, 0.92);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.14);
+      --primary: #7c3aed;
+      --secondary: #06b6d4;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 22px;
+      --max-width: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(124, 58, 237, 0.18), transparent 28%),
+        radial-gradient(circle at 90% 15%, rgba(6, 182, 212, 0.15), transparent 25%),
+        linear-gradient(180deg, #060816 0%, #080b16 50%, #060816 100%);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(92%, var(--max-width));
+      margin: auto;
+    }
+
+    /* NAVIGATION */
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(18px);
+      background: rgba(6, 8, 22, 0.78);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      font-size: 1rem;
+    }
+
+    .brand span {
+      color: #a78bfa;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .nav-links a {
+      transition: 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    /* HERO */
+
+    .hero {
+      padding: 110px 0 90px;
+      text-align: center;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      background: rgba(124, 58, 237, 0.1);
+      border-radius: 999px;
+      color: #c4b5fd;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      max-width: 900px;
+      margin: auto;
+      font-size: clamp(2.5rem, 7vw, 5.5rem);
+      line-height: 1.02;
+      letter-spacing: -4px;
+    }
+
+    .gradient {
+      background: linear-gradient(
+        100deg,
+        #a78bfa,
+        #22d3ee,
+        #818cf8
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 28px auto 36px;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 13px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      transition: 0.25s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      box-shadow: 0 12px 35px rgba(124, 58, 237, 0.25);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      border-color: rgba(167, 139, 250, 0.5);
+    }
+
+    /* METRICS */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 100px;
+    }
+
+    .metric {
+      padding: 26px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(15px);
+      text-align: center;
+      transition: 0.3s ease;
+    }
+
+    .metric:hover {
+      transform: translateY(-6px);
+      background: var(--card-hover);
+    }
+
+    .metric-value {
+      font-size: 2.4rem;
+      font-weight: 850;
+      letter-spacing: -1px;
+    }
+
+    .metric:nth-child(1) .metric-value {
+      color: #a78bfa;
+    }
+
+    .metric:nth-child(2) .metric-value {
+      color: #22d3ee;
+    }
+
+    .metric:nth-child(3) .metric-value {
+      color: #f59e0b;
+    }
+
+    .metric:nth-child(4) .metric-value {
+      color: #22c55e;
+    }
+
+    .metric-label {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    /* SECTION */
+
+    section {
+      padding: 90px 0;
+    }
+
+    .section-heading {
+      max-width: 760px;
+      margin-bottom: 42px;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 0.74rem;
+      color: #a78bfa;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.3rem);
+      line-height: 1.1;
+      letter-spacing: -2px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      margin-top: 16px;
+    }
+
+    /* CARDS */
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      backdrop-filter: blur(15px);
+      transition: 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      background: var(--card-hover);
+      border-color: rgba(167, 139, 250, 0.25);
+    }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(124, 58, 237, 0.13);
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+    }
+
+    .card h3 {
+      font-size: 1.08rem;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* PIPELINE */
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .pipeline-step {
+      min-height: 150px;
+      padding: 20px 14px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .pipeline-step strong {
+      margin-bottom: 7px;
+    }
+
+    .pipeline-step span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    /* ARCHITECTURE */
+
+    .architecture {
+      padding: 40px;
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(
+          145deg,
+          rgba(124, 58, 237, 0.08),
+          rgba(6, 182, 212, 0.04)
+        ),
+        rgba(15, 23, 42, 0.62);
+    }
+
+    .arch-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 14px 0;
+    }
+
+    .arch-node {
+      padding: 16px 20px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      background: rgba(2, 6, 23, 0.7);
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .arrow {
+      color: #818cf8;
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    /* CODE */
+
+    .code-box {
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      overflow-x: auto;
+    }
+
+    pre {
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        monospace;
+      color: #cbd5e1;
+      font-size: 0.88rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: #22c55e;
+    }
+
+    /* RESULTS */
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.65);
+    }
+
+    .result-table th,
+    .result-table td {
+      padding: 18px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-table th {
+      color: #c4b5fd;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .result-table td {
+      color: var(--muted);
+    }
+
+    .result-table td:last-child {
+      color: white;
+      font-weight: 800;
+    }
+
+    /* CTA */
+
+    .cta {
+      padding: 70px 40px;
+      border-radius: 30px;
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.25), transparent 45%),
+        rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border);
+    }
+
+    .cta p {
+      color: var(--muted);
+      max-width: 650px;
+      margin: 16px auto 28px;
+    }
+
+    /* FOOTER */
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 35px 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .pipeline {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero {
+        padding: 80px 0 60px;
+      }
+
+      .hero h1 {
+        letter-spacing: -2px;
+      }
+
+      .metrics,
+      .grid,
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 65px 0;
+      }
+
+      .architecture {
+        padding: 22px;
+      }
+
+      .result-table {
+        font-size: 0.85rem;
+      }
+
+      .result-table th,
+      .result-table td {
+        padding: 13px 10px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- NAVIGATION -->
+
+  <nav>
+    <div class="container nav-inner">
+
+```
+  <a href="#top" class="brand">
+    Project <span>05</span> · AI Test Failure Prediction
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#methodology">Methodology</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#reproduce">Reproduce</a></li>
+  </ul>
+
+</div>
+```
+
+  </nav>
+
+  <main id="top">
+
+```
+<!-- HERO -->
+<section class="hero">
+
+  <div class="container">
+
+    <div class="badge">
+      🧠 Research Project 05 · AI + NLP + Software Testing
+    </div>
+
+    <h1>
+      Predict Test
+      <span class="gradient">Failures Before They Happen.</span>
+    </h1>
+
+    <p>
+      An NLP and machine-learning based research system for predicting
+      software test failures, estimating risk, and enabling intelligent
+      test prioritization.
+    </p>
+
+    <div class="buttons">
+
+      <a
+        class="btn btn-primary"
+        href="https://github.com/upadrastaharshavardhan/AI-Based-Test-Failure-Prediction-NLP"
+        target="_blank"
+        rel="noopener"
+      >
+        ⭐ View Repository
+      </a>
+
+      <a class="btn btn-secondary" href="#reproduce">
+        🚀 Reproduce Experiment
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- METRICS -->
+<div class="container">
+
+  <div class="metrics">
+
+    <div class="metric">
+      <div class="metric-value">93.40%</div>
+      <div class="metric-label">Accuracy</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-value">0.921</div>
+      <div class="metric-label">Macro F1</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-value">0.887</div>
+      <div class="metric-label">Fail F1</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-value">0.956</div>
+      <div class="metric-label">ROC-AUC</div>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- OVERVIEW -->
+<section id="overview">
+
+  <div class="container">
+
+    <div class="section-heading">
+
+      <div class="eyebrow">01 · Overview</div>
+
+      <h2>
+        From reactive testing to
+        <span class="gradient">predictive quality engineering.</span>
+      </h2>
+
+      <p>
+        Traditional testing discovers failures after execution.
+        This research project explores how AI and NLP can identify
+        failure-prone tests before execution.
+      </p>
+
+    </div>
+
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="icon">🧠</div>
+        <h3>NLP-Based Intelligence</h3>
+        <p>
+          Extract useful information from test names, descriptions,
+          textual signals, and other test-related information.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">📊</div>
+        <h3>Failure Prediction</h3>
+        <p>
+          Classify tests according to their predicted execution outcome
+          and estimate their likelihood of failure.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h3>Test Prioritization</h3>
+        <p>
+          Use predicted risk as a decision signal for intelligent
+          regression testing and CI/CD optimization.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- PROBLEM -->
+<section>
+
+  <div class="container">
+
+    <div class="section-heading">
+
+      <div class="eyebrow">02 · Problem</div>
+
+      <h2>
+        Why predict test failures?
+      </h2>
+
+      <p>
+        Large test suites can consume significant execution time and
+        compute resources. Not every test has the same probability of
+        failure.
+      </p>
+
+    </div>
+
+
+    <div class="architecture">
+
+      <div class="arch-row">
+
+        <div class="arch-node">
+          🧪 Thousands of Tests
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="arch-node">
+          ⏳ Long Execution
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="arch-node">
+          ❌ Failures
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="arch-node">
+          🔎 Investigation
+        </div>
+
+      </div>
+
+      <div class="arch-row">
+
+        <div class="arch-node">
+          Test + History
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="arch-node">
+          🧠 NLP
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="arch-node">
+          🤖 ML Predictor
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="arch-node">
+          ⚠️ Risk Score
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+
+  <div class="container">
+
+    <div class="section-heading">
+
+      <div class="eyebrow">03 · Architecture</div>
+
+      <h2>
+        Intelligent test failure prediction pipeline.
+      </h2>
+
+      <p>
+        The system transforms raw test information into predictive
+        signals that can support risk-based testing decisions.
+      </p>
+
+    </div>
+
+
+    <div class="architecture">
+
+      <div class="arch-row">
+        <div class="arch-node">Test Information</div>
+        <div class="arrow">→</div>
+        <div class="arch-node">NLP Processing</div>
+        <div class="arrow">→</div>
+        <div class="arch-node">Feature Engineering</div>
+      </div>
+
+      <div class="arch-row">
+        <div class="arch-node">Feature Representation</div>
+        <div class="arrow">→</div>
+        <div class="arch-node">ML Classifier</div>
+        <div class="arrow">→</div>
+        <div class="arch-node">PASS / FAIL</div>
+      </div>
+
+      <div class="arch-row">
+        <div class="arch-node">Failure Probability</div>
+        <div class="arrow">→</div>
+        <div class="arch-node">Risk Ranking</div>
+        <div class="arrow">→</div>
+        <div class="arch-node">Intelligent Testing</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- METHODOLOGY -->
+<section id="methodology">
+
+  <div class="container">
+
+    <div class="section-heading">
+
+      <div class="eyebrow">04 · Methodology</div>
+
+      <h2>
+        Research workflow
+      </h2>
+
+      <p>
+        A reproducible pipeline from data generation through model
+        evaluation.
+      </p>
+
+    </div>
+
+
+    <div class="pipeline">
+
+      <div class="pipeline-step">
+        <strong>01</strong>
+        <span>Dataset Generation</span>
+      </div>
+
+      <div class="pipeline-step">
+        <strong>02</strong>
+        <span>NLP Processing</span>
+      </div>
+
+      <div class="pipeline-step">
+        <strong>03</strong>
+        <span>Feature Engineering</span>
+      </div>
+
+      <div class="pipeline-step">
+        <strong>04</strong>
+        <span>Model Training</span>
+      </div>
+
+      <div class="pipeline-step">
+        <strong>05</strong>
+        <span>Prediction</span>
+      </div>
+
+      <div class="pipeline-step">
+        <strong>06</strong>
+        <span>Evaluation</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- RESULTS -->
+<section id="results">
+
+  <div class="container">
+
+    <div class="section-heading">
+
+      <div class="eyebrow">05 · Results</div>
+
+      <h2>
+        Experimental performance
+      </h2>
+
+      <p>
+        Reported results from the Project 5 research package.
+      </p>
+
+    </div>
+
+
+    <table class="result-table">
+
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Score</th>
+          <th>Interpretation</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td>Accuracy</td>
+          <td>93.40%</td>
+          <td>Overall classification correctness</td>
+        </tr>
+
+        <tr>
+          <td>Macro F1</td>
+          <td>0.921</td>
+          <td>Balanced class-level performance</td>
+        </tr>
+
+        <tr>
+          <td>Fail F1</td>
+          <td>0.887</td>
+          <td>Failure-class detection performance</td>
+        </tr>
+
+        <tr>
+          <td>ROC-AUC</td>
+          <td>0.956</td>
+          <td>Class discrimination capability</td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
+
+<!-- REPRODUCE -->
+<section id="reproduce">
+
+  <div class="container">
+
+    <div class="section-heading">
+
+      <div class="eyebrow">06 · Reproducibility</div>
+
+      <h2>
+        Run the experiment locally.
+      </h2>
+
+      <p>
+        Clone the repository, install dependencies, generate the
+        reproducible dataset, and train the model.
+      </p>
+
+    </div>
+
+
+    <div class="code-box">
+```
+
+<pre><span class="prompt">$</span> git clone https://github.com/upadrastaharshavardhan/AI-Based-Test-Failure-Prediction-NLP.git
+
+<span class="prompt">$</span> cd AI-Based-Test-Failure-Prediction-NLP/codebase
+
+<span class="prompt">$</span> pip install -r requirements.txt
+
+<span class="prompt">$</span> python scripts/generate_data.py --n-samples 5000 --seed 42
+
+<span class="prompt">$</span> python scripts/train.py</pre>
+
+```
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- USE CASES -->
+<section>
+
+  <div class="container">
+
+    <div class="section-heading">
+
+      <div class="eyebrow">07 · Applications</div>
+
+      <h2>
+        Where predictive testing can help.
+      </h2>
+
+    </div>
+
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="icon">🔄</div>
+        <h3>CI/CD</h3>
+        <p>
+          Identify high-risk tests during continuous integration and
+          release workflows.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🧪</div>
+        <h3>Regression Testing</h3>
+        <p>
+          Prioritize regression tests based on predicted failure risk.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🚦</div>
+        <h3>Release Risk</h3>
+        <p>
+          Use predicted failures as one signal for release readiness.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">📈</div>
+        <h3>QA Analytics</h3>
+        <p>
+          Transform historical test execution information into
+          actionable quality insights.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🤖</div>
+        <h3>AI-Assisted QA</h3>
+        <p>
+          Integrate prediction into broader intelligent testing
+          architectures.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">⚙️</div>
+        <h3>Automation</h3>
+        <p>
+          Provide risk signals to automated test orchestration systems.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- RESEARCH PACKAGE -->
+<section>
+
+  <div class="container">
+
+    <div class="section-heading">
+
+      <div class="eyebrow">08 · Repository</div>
+
+      <h2>
+        Complete research package.
+      </h2>
+
+    </div>
+
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="icon">📚</div>
+        <h3>Research Paper</h3>
+        <p>
+          Research paper and supporting academic documentation.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">📖</div>
+        <h3>Documentation</h3>
+        <p>
+          Methodology, architecture, experiment notes, and analysis.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">📊</div>
+        <h3>Results</h3>
+        <p>
+          Metrics, predictions, reports, and experimental outputs.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- CTA -->
+<section>
+
+  <div class="container">
+
+    <div class="cta">
+
+      <h2>
+        Build the next generation of
+        <span class="gradient">intelligent QA.</span>
+      </h2>
+
+      <p>
+        Explore the complete research package, reproduce the experiment,
+        and extend predictive test failure analysis into intelligent
+        test prioritization and autonomous QA systems.
+      </p>
+
+      <div class="buttons">
+
+        <a
+          class="btn btn-primary"
+          href="https://github.com/upadrastaharshavardhan/AI-Based-Test-Failure-Prediction-NLP"
+          target="_blank"
+          rel="noopener"
+        >
+          ⭐ Open GitHub Repository
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+```
+
+  </main>
+
+  <!-- FOOTER -->
+
+  <footer>
+
+```
+<div class="container">
+
+  <p>
+    <strong>AI-Based Test Failure Prediction</strong>
+    · Project 5
+  </p>
+
+  <p>
+    AI · NLP · Machine Learning · Software Quality Engineering
+  </p>
+
+  <p>
+    Released under the MIT License
+  </p>
+
+</div>
+```
+
+  </footer>
+
+</body>
+</html>
